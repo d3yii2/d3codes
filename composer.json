@@ -1,0 +1,21 @@
+{
+    "name": "d3yii2/d3codes",
+    "description": "Codes",
+    "type": "library",
+    "license": "BSD-4-Clause",
+    "keywords": ["yii2","codes","barcodes"],
+    "authors": [
+        {
+            "name": "Uldis Nelsons",
+            "email": "uldis@weberp.lv"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "d3yii2\\d3codes\\": ""
+        }
+    }
+}
