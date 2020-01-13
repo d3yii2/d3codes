@@ -41,7 +41,7 @@ class D3CodesCodeDictionary{
                     D3CodesCode::find()
                     ->select([
                         'id' => 'id',
-                        'name' => 'id',
+                        'name' => 'name',
                         //'name' => 'CONCAT(code,\' \',name)'
                     ])
                     ->orderBy([

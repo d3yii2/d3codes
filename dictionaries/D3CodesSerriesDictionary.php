@@ -25,8 +25,7 @@ class D3CodesSerriesDictionary{
                     D3CodesSeries::find()
                     ->select([
                         'id' => 'id',
-                        'name' => 'id',
-                        //'name' => 'CONCAT(code,\' \',name)'
+                        'name' => 'name',
                     ])
                     ->orderBy([
                         'id' => SORT_ASC,

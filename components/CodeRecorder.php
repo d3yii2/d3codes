@@ -47,7 +47,7 @@ class CodeRecorder  extends Component {
         $this->sysModel = Yii::$app->$sysModelName;
         $this->modelId = $this->sysModel->getIdByClassName($this->modelClass);
         foreach ($this->series as $name => $s){
-            $this->seriesList[$s[$name]] = new Serries($name,$s['prefix'],$s['length'],$s['from'],$s['to']);
+            $this->seriesList[$name] = new Serries($name,$s['prefix'],$s['length'],$s['from'],$s['to']);
         }
 
     }
@@ -60,7 +60,7 @@ class CodeRecorder  extends Component {
     public function getCodeOrCreate(int $modelRecordId): string
     {
         if($code = D3CodesCodeRecord::find()
-            ->select('code')
+            ->select('full_code')
             ->andWhere([
                 'code_id' => $this->codeId,
                 'model_id' => $this->modelId,
