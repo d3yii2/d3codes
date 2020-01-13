@@ -57,6 +57,28 @@ class CodeRecorder  extends Component {
      * @return bool|string
      * @throws D3ActiveRecordException
      */
+    public function getCodeOrCreate(int $modelRecordId): string
+    {
+        if($code = D3CodesCodeRecord::find()
+            ->select('code')
+            ->andWhere([
+                'code_id' => $this->codeId,
+                'model_id' => $this->modelId,
+                'model_record_id' => $modelRecordId
+            ])
+            ->scalar()
+        ){
+            return $code;
+        }
+
+        return $this->createNewRecord($modelRecordId);
+    }
+
+    /**
+     * @param int $modelRecordId
+     * @return bool|string
+     * @throws D3ActiveRecordException
+     */
     public function createNewRecord(int $modelRecordId)
     {
         foreach ($this->seriesList as $series){
