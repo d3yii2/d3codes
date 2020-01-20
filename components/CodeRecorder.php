@@ -59,19 +59,24 @@ class CodeRecorder  extends Component {
      */
     public function getCodeOrCreate(int $modelRecordId): string
     {
-        if($code = D3CodesCodeRecord::find()
+        if($code = $this->getBarCode($modelRecordId)
+        ){
+            return $code;
+        }
+
+        return $this->createNewRecord($modelRecordId);
+    }
+
+    public function getBarCode(int $modelRecordId)
+    {
+        return D3CodesCodeRecord::find()
             ->select('full_code')
             ->andWhere([
                 'code_id' => $this->codeId,
                 'model_id' => $this->modelId,
                 'model_record_id' => $modelRecordId
             ])
-            ->scalar()
-        ){
-            return $code;
-        }
-
-        return $this->createNewRecord($modelRecordId);
+            ->scalar();
     }
 
     /**

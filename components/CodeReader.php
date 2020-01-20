@@ -33,7 +33,7 @@ class CodeReader  extends Component {
         $sysModelName = $this->componentsSysModel;
         $this->sysModel = Yii::$app->$sysModelName;
         foreach($this->modelClassList as $modelClass){
-            $this->modelIdList[$modelClass] = $this->sysModel->getIdByClassName($modelClass);
+            $this->modelIdList[$this->sysModel->getIdByClassName($modelClass)] = $modelClass;
         }
     }
 
@@ -42,7 +42,7 @@ class CodeReader  extends Component {
     {
             if(!$model = D3CodesCodeRecord::find()
                 ->where([
-                    'model_id' => $this->modelIdList,
+                    'model_id' => array_keys($this->modelIdList),
                     'full_code' => $code
                 ])
                 ->one()
@@ -50,7 +50,7 @@ class CodeReader  extends Component {
                 return false;
             }
             /** @var ActiveRecord $codeModelClass */
-            $codeModelClass = array_search($model->model_id,$this->modelIdList, true);
+            $codeModelClass = $this->modelIdList[(int)$model->model_id];
             return $codeModelClass::findOne($model->model_record_id);
 
     }
