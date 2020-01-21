@@ -46,9 +46,9 @@ abstract class D3CodesCodeRecord extends \yii\db\ActiveRecord
             'integer Unsigned' => [['id','model_record_id','sqn'],'integer' ,'min' => 0 ,'max' => 4294967295],
             [['code_id', 'series_id', 'model_id', 'model_record_id', 'sqn', 'full_code'], 'required'],
             [['full_code'], 'string', 'max' => 50],
-            [['code_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d3yii2\d3codes\models\D3codesCode::className(), 'targetAttribute' => ['code_id' => 'id']],
+            [['code_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d3yii2\d3codes\models\D3CodesCode::className(), 'targetAttribute' => ['code_id' => 'id']],
             [['model_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d3yii2\d3codes\models\SysModels::className(), 'targetAttribute' => ['model_id' => 'id']],
-            [['series_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d3yii2\d3codes\models\D3codesSeries::className(), 'targetAttribute' => ['series_id' => 'id']]
+            [['series_id'], 'exist', 'skipOnError' => true, 'targetClass' => \d3yii2\d3codes\models\D3CodesSeries::className(), 'targetAttribute' => ['series_id' => 'id']]
         ];
     }
 
