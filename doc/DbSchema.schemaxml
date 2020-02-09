@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemadesigner version="6.5">
 <source>
-<database charset="latin1" collation="latin1_swedish_ci">cewood</database>
+<database charset="latin1" collation="latin1_swedish_ci">cewood_20200120</database>
 </source>
 <canvas zoom="100">
 <tables>
@@ -13,15 +13,12 @@
 <sql_create_table>CREATE TABLE `d3codes_code` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) DEFAULT NULL,
-  `model_id` tinyint(3) unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `model_id` (`model_id`),
-  CONSTRAINT `d3codes_code_ibfk_1` FOREIGN KEY (`model_id`) REFERENCES `sys_models` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1</sql_create_table>
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1</sql_create_table>
 </table>
 <table name="d3codes_code_record" view="colnames">
-<left>212</left>
-<top>282</top>
+<left>312</left>
+<top>345</top>
 <width>129</width>
 <height>175</height>
 <sql_create_table>CREATE TABLE `d3codes_code_record` (
@@ -33,18 +30,18 @@
   `sqn` int(10) unsigned NOT NULL,
   `full_code` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `series_id` (`series_id`),
   KEY `code_id` (`code_id`),
   KEY `model_code_series` (`model_id`,`code_id`,`series_id`),
   KEY `model_fullCode` (`model_id`,`full_code`(10)),
-  CONSTRAINT `d3codes_code_record_ibfk_1` FOREIGN KEY (`code_id`) REFERENCES `d3codes_code` (`id`),
-  CONSTRAINT `d3codes_code_record_ibfk_3` FOREIGN KEY (`model_id`) REFERENCES `sys_models` (`id`),
-  CONSTRAINT `d3codes_code_record_ibfk_4` FOREIGN KEY (`series_id`) REFERENCES `d3codes_series` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1</sql_create_table>
+  KEY `d3codes_code_record_ibfk_series` (`series_id`),
+  CONSTRAINT `d3codes_code_record_ibfk_code` FOREIGN KEY (`code_id`) REFERENCES `d3codes_code` (`id`),
+  CONSTRAINT `d3codes_code_record_ibfk_model` FOREIGN KEY (`model_id`) REFERENCES `sys_models` (`id`),
+  CONSTRAINT `d3codes_code_record_ibfk_series` FOREIGN KEY (`series_id`) REFERENCES `d3codes_series` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=latin1</sql_create_table>
 </table>
 <table name="sys_models" view="colnames">
-<left>407</left>
-<top>471</top>
+<left>576</left>
+<top>492</top>
 <width>132</width>
 <height>114</height>
 <sql_create_table>CREATE TABLE `sys_models` (
@@ -53,17 +50,30 @@
   `class_name` varchar(256) DEFAULT NULL COMMENT 'Class',
   PRIMARY KEY (`id`),
   UNIQUE KEY `table_name` (`table_name`,`class_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=ascii</sql_create_table>
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=ascii</sql_create_table>
 </table>
 <table name="d3codes_series" view="colnames">
-<left>409</left>
-<top>350</top>
+<left>574</left>
+<top>385</top>
 <width>135</width>
 <height>97</height>
 <sql_create_table>CREATE TABLE `d3codes_series` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1</sql_create_table>
+</table>
+<table name="d3codes_code_queue" view="colnames">
+<left>91</left>
+<top>327</top>
+<width>144</width>
+<height>97</height>
+<sql_create_table>CREATE TABLE `d3codes_code_queue` (
+  `id` int(10) unsigned NOT NULL,
+  `record_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `d3codes_code_queue_ibfk_record` (`record_id`),
+  CONSTRAINT `d3codes_code_queue_ibfk_record` FOREIGN KEY (`record_id`) REFERENCES `d3codes_code_record` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1</sql_create_table>
 </table>
 </tables>
