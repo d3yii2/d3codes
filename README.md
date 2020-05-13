@@ -63,6 +63,10 @@ to the `require` section of your `composer.json` file.
 ```
 
 ### Controller and Form
+
+For form use model d3yii2\d3codes\models\CodeReader.
+
+
 Controller
 ```php
 use d3yii2\d3codes\models\CodeReader;
