@@ -61,4 +61,72 @@ to the `require` section of your `composer.json` file.
     $palletModel = \Yii::$app->palletCodeRecorder->codeReader($barcodeReadedByBarCodeScaner);       
 
 ```
+
+### Controller and Form
+
+For form use model d3yii2\d3codes\models\CodeReader.
+
+
+Controller
+```php
+use d3yii2\d3codes\models\CodeReader;
+
+        $codeReaderModel = new CodeReader();
+        $codeReaderModel->componentCodeReaderName = 'codeReader';
+        $post = Yii::$app->request->post();
+        if($post && $codeReaderModel->load(Yii::$app->request->post())){
+                    /** @var CwpalletPallet $palletModel */
+                    $palletModel = $codeReaderModel->model;
+        }
+        if ($codeReaderModel->hasErrors()) {
+            FlashHelper::modelErrorSummary($codeReaderModel);
+        }        
+        return $this->render('manufacturing', [
+            'packList' =>  $searchModel
+                ->manufacturedPacks(true)
+                ->all(),
+            'packId' => $packId,
+            'codeReaderModel' => $codeReaderModel
+        ]);        
+```
+form
+```php
+                $form = ActiveForm::begin([
+                    'id' => 'BauncerCodeReading',
+                    'enableClientValidation' => false,
+                    'errorSummaryCssClass' => 'error-summary alert alert-error',
+                    'fieldConfig' => [
+                        'template' => "{label}\n{beginWrapper}\n{input}\n{error}\n{endWrapper}",
+                    ],
+
+                ]);
+                echo $form
+                    ->field(
+                        $codeReaderModel,
+                        'code',
+                        [
+                            'inputOptions' => [
+                                'autofocus' => 'autofocus',
+                                'class' => 'form-control',
+                                'tabindex' => '1'
+                            ]
+                        ])
+                    ->textInput()
+                    ->label('');
+
+
+                echo ThButton::widget([
+                    'label' => 'Process',
+                    'id' => 'saveCode',
+                    'icon' => ThButton::ICON_CHECK,
+                    'type' => ThButton::TYPE_SUCCESS,
+                    'submit' => true,
+                    'htmlOptions' => [
+                        'name' => 'action',
+                        'value' => 'save',
+                    ],
+                ]);
+                ActiveForm::end();
+```
+
 ## Examples
