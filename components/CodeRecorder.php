@@ -2,12 +2,11 @@
 
 namespace d3yii2\d3codes\components;
 
+use d3system\dictionaries\SysModelsDictionary;
 use d3yii2\d3codes\models\D3CodesCodeQueue;
-use d3system\compnents\ModelsList;
 use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3codes\dictionaries\D3CodesCodeDictionary;
 use d3yii2\d3codes\models\D3CodesCodeRecord;
-use Yii;
 use yii\base\Component;
 
 
@@ -29,12 +28,6 @@ class CodeRecorder  extends Component {
     /** @var Serries[] */
     private $seriesList = [];
 
-    /** @var string */
-    public $componentsSysModel;
-
-    /** @var ModelsList */
-    private $sysModel;
-
     /** @var int */
     private $codeId;
 
@@ -44,9 +37,7 @@ class CodeRecorder  extends Component {
     public function init(): void
     {
         $this->codeId = D3CodesCodeDictionary::getIdByName($this->codeName);
-        $sysModelName = $this->componentsSysModel;
-        $this->sysModel = Yii::$app->$sysModelName;
-        $this->modelId = $this->sysModel->getIdByClassName($this->modelClass);
+        $this->modelId = SysModelsDictionary::getIdByClassName($this->modelClass);
         foreach ($this->series as $name => $s){
             $this->seriesList[$name] = new Serries($name,$s['prefix'],$s['length'],$s['from'],$s['to']);
         }

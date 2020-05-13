@@ -2,7 +2,7 @@
 
 namespace d3yii2\d3codes\components;
 
-use d3system\compnents\ModelsList;
+use d3system\dictionaries\SysModelsDictionary;
 use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3codes\models\D3CodesCodeRecord;
 use Yii;
@@ -18,22 +18,14 @@ class CodeReader  extends Component {
     /** @var int[] */
     public $modelIdList = [];
 
-    /** @var string */
-    public $componentsSysModel;
-
-    /** @var ModelsList */
-    private $sysModel;
-
-
     /**
      * @throws D3ActiveRecordException
      */
     public function init(): void
     {
-        $sysModelName = $this->componentsSysModel;
-        $this->sysModel = Yii::$app->$sysModelName;
+
         foreach($this->modelClassList as $modelClass){
-            $this->modelIdList[$this->sysModel->getIdByClassName($modelClass)] = $modelClass;
+            $this->modelIdList[SysModelsDictionary::getIdByClassName($modelClass)] = $modelClass;
         }
     }
 
