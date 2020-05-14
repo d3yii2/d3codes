@@ -54,6 +54,16 @@ to the `require` section of your `composer.json` file.
 For printing direct from the server.
 Use Chrome for converting to PDF and for sending to printer use   PDFtoPrinter http://www.columbia.edu/~em36/pdftoprinter.html
 
+To composer add repository https://github.com/uldisn/php-exec.git 
+```json
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/uldisn/php-exec.git"
+        },
+
+```
+
 ```text
 # Bar code printer
 BOUNCER_PRINTER=BouncerPrinter
