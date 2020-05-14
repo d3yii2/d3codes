@@ -23,6 +23,7 @@ to the `require` section of your `composer.json` file.
 
 
 ## Configuration
+### recorder and Readers
 ```php
  'components' => [
         'palletCodeRecorder' => [
@@ -46,23 +47,45 @@ to the `require` section of your `composer.json` file.
             ],
             'componentsSysModel' => 'sysModel'
         ],
-        'sysModel' => [
-            'class' => 'd3system\compnents\ModelsList'
+    ]
+        
+```
+### Printer
+For printing direct from the server.
+Use Chrome for converting to PDF and for sending to printer use   PDFtoPrinter http://www.columbia.edu/~em36/pdftoprinter.html
+
+```text
+# Bar code printer
+BOUNCER_PRINTER=BouncerPrinter
+PDFtoPrinter=H:\yii2\cewood\PDFtoPrinter.exe
+
+# chrome
+CHROME_PATH=C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+```
+
+```php
+ 'components' => [
+        'bouncerPrinter' => [
+            'class' => '\d3yii2\d3codes\components\PrintWindowsPrinter',
+            'printerName' => getenv('BOUNCER_PRINTER'),
+            'chromeExe' => getenv('CHROME_PATH'),
+            'PDFtoPrinter' => getenv('PDFtoPrinter'),
         ],
     ]
         
 ```
 
+
 ## Usage
+### creating new barcode
 ```php
 
     $barCode = \Yii::$app->palletCodeRecorder->createNewRecord($palletModel->id);
-
     $palletModel = \Yii::$app->palletCodeRecorder->codeReader($barcodeReadedByBarCodeScaner);       
 
 ```
 
-### Controller and Form
+###  reading in Controller and Form
 
 For form use model d3yii2\d3codes\models\CodeReader.
 
@@ -129,4 +152,23 @@ form
                 ActiveForm::end();
 ```
 
-## Examples
+### Print from server
+
+```php
+        try {
+            
+            $url = Yii::$app->urlManager->createAbsoluteUrl([
+                '/cwstore/pack/print-barcode',
+                'id' => $id
+            ]);
+            if(Yii::$app->bouncerPrinter->print($url)){
+                FlashHelper::addSuccess('Etiķete nosūtīta uz izsitēja printera');
+            }else{
+                FlashHelper::addDanger('Radās kļūda drukājot etiķeti');
+            }
+        } catch (Exception $e) {
+            FlashHelper::processException($e);
+        }
+
+
+```
