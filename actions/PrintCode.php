@@ -35,18 +35,20 @@ class PrintCode extends Action
      */
     public function run(int $id)
     {
-        if($this->layout) {
+        if ($this->layout) {
             $this->controller->layout = $this->layout;
+        } else {
+            $this->controller->layout = '@vendor/d3yii2/d3codes/views/layouts/label';
         }
         /** @var CodeRecorder $codeRecorder */
         $codeRecorder = Yii::$app->get($this->componentRecorderName);
         $code = $codeRecorder->getCodeOrCreate($id);
-        $data =$this->data;
-        if(is_callable($data)){
+        $data = $this->data;
+        if (is_callable($data)) {
             $data = $data($id);
         }
         $data['code'] = $code;
-        return $this->controller->render($this->view,$data);
+        return $this->controller->render($this->view, $data);
 
     }
 
