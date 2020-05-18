@@ -95,6 +95,63 @@ CHROME_PATH=C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
 
 ```
 
+### adding code to model
+
+```php
+class BtlinePp extends BaseBtlinePp
+{
+
+    public function rules()
+    {
+        return array_merge(parent::rules(),[
+            ['code','safe']
+        ]);
+    }
+
+    public function attributeLabels()
+    {
+        return array_merge(parent::attributeLabels(),[
+            'code' => 'Code'
+        ]);
+    }
+
+    /**
+     * @return string
+     * @throws D3ActiveRecordException
+     */
+    public function getCode(): string
+    {
+        return Yii::$app->ppCodeRecorder->getCodeOrCreate($this->id);
+    }
+}
+
+```
+
+###  Print barcode by printer
+```php
+use d3yii2\d3codes\actions\PrintCode;
+class BatchController
+{
+
+    public function actions() {
+        $OC = $this;
+        return [
+            'pp-print-barcode' => [
+                'class' => PrintCode::class,
+                'componentRecorderName' => 'ppCodeRecorder',
+                'layout' => '@layout_barcode',
+                'view' => 'print_barcode',
+                'data' => static function(int $id) use ($OC){
+                    return [
+                        'model' => $OC->findModel($id),
+                    ];
+                }
+            ],
+        ];
+    }
+}
+```
+
 ###  reading in Controller and Form
 
 For form use model d3yii2\d3codes\models\CodeReader.
