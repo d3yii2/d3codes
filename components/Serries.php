@@ -79,4 +79,21 @@ class Serries
         return $this->prefix . str_pad($sqn, $this->length, '0', STR_PAD_LEFT);
     }
 
+    public function getCodeNumber(string $code): int
+    {
+        $regExpression = '^'.$this->prefix.'(\d{'.$this->length.'})$';
+        if(!preg_match('#'.$regExpression.'#',$code,$match)){
+            return 0;
+        }
+        $number = (int)$match[1];
+        if($number<$this->from){
+            return 0;
+        }
+        if($number>$this->to){
+            return 0;
+        }
+
+        return $number;
+    }
+
 }

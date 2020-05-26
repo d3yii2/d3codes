@@ -71,6 +71,19 @@ class CodeRecorder  extends Component {
             ->scalar();
     }
 
+    /**
+     * @param int $modelRecordId
+     * @param string $code
+     * @return bool|string
+     * @throws D3ActiveRecordException
+     */
+    public function registerCode(int $modelRecordId, string $code)
+    {
+        return $this->createNewRecord($modelRecordId,$code);
+    }
+
+
+
     public function addToQueue(int $modelRecordId): void
     {
         $id = D3CodesCodeRecord::find()
@@ -119,32 +132,38 @@ class CodeRecorder  extends Component {
             ])
             ->scalar();
     }
+
     /**
      * @param int $modelRecordId
+     * @param string $code
      * @return bool|string
      * @throws D3ActiveRecordException
      */
-    public function createNewRecord(int $modelRecordId)
+    public function createNewRecord(int $modelRecordId, string $code = '')
     {
         foreach ($this->seriesList as $series){
-            $seriesId = $series->getSerriesId();
-            $maxSqn = D3CodesCodeRecord::find()
-                ->select('MAX(sqn)')
-                ->where([
-                    'code_id' => $this->codeId,
-                    'model_id' => $this->modelId,
-                    'series_id' => $seriesId
-                ])
-                ->scalar();
-            $nextSqn = $series->getNextSqn($maxSqn);
-            if($nextSqn !== false){
-                $code = $series->createCode($nextSqn);
+            if($code){
+                $number = $series->getCodeNumber($code);
+            }else {
+                $seriesId = $series->getSerriesId();
+                $maxSqn = D3CodesCodeRecord::find()
+                    ->select('MAX(sqn)')
+                    ->where([
+                        'code_id' => $this->codeId,
+                        'model_id' => $this->modelId,
+                        'series_id' => $seriesId
+                    ])
+                    ->scalar();
+                $number = $series->getNextSqn($maxSqn);
+            }
+            if($number){
+                $code = $series->createCode($number);
                 $model = new D3CodesCodeRecord();
                 $model->code_id = $this->codeId;
                 $model->model_id = $this->modelId;
-                $model->series_id = $seriesId;
+                $model->series_id = $series->getSerriesId();
                 $model->model_record_id = $modelRecordId;
-                $model->sqn = $nextSqn;
+                $model->sqn = $number;
                 $model->full_code = $code;
                 if(!$model->save()){
                     throw new D3ActiveRecordException($model);
@@ -155,4 +174,22 @@ class CodeRecorder  extends Component {
         }
         return false;
     }
+
+    /**
+     * @param string $code
+     * @return bool|string
+     */
+    public function isValidSeries(string $code = ''): bool
+    {
+        foreach ($this->seriesList as $series){
+
+            if($number = $series->getCodeNumber($code)){
+                return true;
+
+            }
+        }
+        return false;
+    }
+
+
 }
