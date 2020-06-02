@@ -75,10 +75,9 @@ class PrintWindowsPrinter extends Component
      */
     private function getTempFile(string $prefix = 'temp',string $extension = 'tmp'): string
     {
-        $tmpDir = Yii::$app->runtimePath . '/tmp';
-
+        $tmpDir = Yii::getAlias('@runtime/tmp');
         if (!is_dir($tmpDir) && (!@mkdir($tmpDir) && !is_dir($tmpDir))) {
-            throw new NotFoundHttpException ('temp directory does not exist');
+            throw new NotFoundHttpException ('temp directory does not exist: ' . $tmpDir);
         }
 
         return preg_replace('#\.tmp$#','.'.$extension,tempnam($tmpDir, $prefix));
