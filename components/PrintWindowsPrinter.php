@@ -38,10 +38,12 @@ class PrintWindowsPrinter extends Component
 
     /**
      * @param string $url URL return label with barcode
+     * @param int $copies
      * @return bool
-     * @throws Exception|NotFoundHttpException
+     * @throws Exception
+     * @throws NotFoundHttpException
      */
-    public function print(string $url): bool
+    public function print(string $url, int $copies = 1): bool
     {
         $temPath =escapeshellarg($this->getTempFile('4printer','pdf'));
 
@@ -56,7 +58,7 @@ class PrintWindowsPrinter extends Component
         }
         $result = $this->exec($this->PDFtoPrinter,[
             $temPath,
-            '"'.$this->printerName.'"'
+            '"'.$this->printerName.'" copies=' . $copies
         ]);
         sleep(1);
         if(file_exists($temPath)){
@@ -93,7 +95,7 @@ class PrintWindowsPrinter extends Component
     public function exec(string $execCommand,array $arguments = []): bool
     {
 
-        $command = new Command($execCommand, $arguments, false);
+        $command = new Command($execCommand, $arguments);
         $result = $command->run();
         if (!$result->isSuccess()) {
             Yii::error('Exec error: ' . $execCommand);
