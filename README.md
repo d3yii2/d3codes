@@ -8,6 +8,8 @@ Functionality
  - label layouts
  - label printing form windows server
 
+## DB Schema
+![DB Schema](/doc/DbSchema.png)
 
 ## Installation
 
