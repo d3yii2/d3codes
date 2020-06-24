@@ -1,6 +1,12 @@
-#Codes"
-
 ## Features
+
+Created as Yii2 moule. Actualy generate barccodes, bot can easy implement Qrcodes
+Functionality
+ - define code series by prefix and interval from and to 
+ - creating codes from series and assigne to active record
+ - read codes and assign to active record
+ - label layouts
+ - label printing form windows server
 
 
 ## Installation
@@ -24,6 +30,7 @@ to the `require` section of your `composer.json` file.
 
 ## Configuration
 ### recorder and Readers
+Recorder generate new barcodes from defined series. For diferrent types define different components. 
 ```php
  'components' => [
         'palletCodeRecorder' => [
@@ -51,7 +58,7 @@ to the `require` section of your `composer.json` file.
         
 ```
 ### Printer
-For printing direct from the server.
+For printing direct from the Windows server.
 Use Chrome for converting to PDF and for sending to printer use   PDFtoPrinter http://www.columbia.edu/~em36/pdftoprinter.html
 
 To composer add repository https://github.com/uldisn/php-exec.git 
