@@ -145,17 +145,9 @@ class CodeRecorder  extends Component {
             if($code){
                 $number = $series->getCodeNumber($code);
             }else {
-                $seriesId = $series->getSerriesId();
-                $maxSqn = D3CodesCodeRecord::find()
-                    ->select('MAX(sqn)')
-                    ->where([
-                        'code_id' => $this->codeId,
-                        'model_id' => $this->modelId,
-                        'series_id' => $seriesId
-                    ])
-                    ->scalar();
-                $number = $series->getNextSqn($maxSqn);
+                $number = $this->createNextCode($series);
             }
+
             if($number){
                 $code = $series->createCode($number);
                 $model = new D3CodesCodeRecord();
@@ -176,6 +168,21 @@ class CodeRecorder  extends Component {
     }
 
     /**
+     * @param int $step
+     * @return bool|string
+     * @throws D3ActiveRecordException
+     */
+    public function createFakeNewRecord(int $step)
+    {
+        foreach ($this->seriesList as $series) {
+            if ($number = $this->createNextCode($series, $step)) {
+                return $series->createCode($number);
+            }
+        }
+        return false;
+    }
+
+    /**
      * @param string $code
      * @return bool|string
      */
@@ -189,6 +196,26 @@ class CodeRecorder  extends Component {
             }
         }
         return false;
+    }
+
+    /**
+     * @param Serries $series
+     * @param int $step
+     * @return bool|int
+     * @throws D3ActiveRecordException
+     */
+    public function createNextCode(Serries $series, int $step = 1)
+    {
+        $seriesId = $series->getSerriesId();
+        $maxSqn = D3CodesCodeRecord::find()
+            ->select('MAX(sqn)')
+            ->where([
+                'code_id' => $this->codeId,
+                'model_id' => $this->modelId,
+                'series_id' => $seriesId
+            ])
+            ->scalar();
+        return $series->getNextSqn($maxSqn, $step);
     }
 
 
