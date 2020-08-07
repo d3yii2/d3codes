@@ -12,7 +12,8 @@
     ],
     "require": {
         "yiisoft/yii2": "*",
-        "tomaszdurka/php-exec": "dev-master"
+        "tomaszdurka/php-exec": "dev-master",
+        "d3yii2/d3system": "dev-master"
     },
     "autoload": {
         "psr-4": {
