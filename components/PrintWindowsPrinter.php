@@ -4,6 +4,7 @@
 namespace d3yii2\d3codes\components;
 
 
+use creocoder\flysystem\FtpFilesystem;
 use PhpExec\Exception;
 use Yii;
 use yii\base\Component;
@@ -56,11 +57,41 @@ class PrintWindowsPrinter extends Component
         )) {
             return false;
         }
+        sleep(1);
         $result = $this->exec($this->PDFtoPrinter,[
             $temPath,
             '"'.$this->printerName.'" copies=' . $copies
         ]);
+
+        if(file_exists($temPath)){
+            unlink($temPath);
+        }
+        return $result;
+
+    }
+
+    public function printToFtpFilesystem(FtpFilesystem $ftp,string $url, int $copies = 1): bool
+    {
+        $temPath =escapeshellarg($this->getTempFile('4printer','pdf'));
+
+        if (!$this->exec($this->chromeExe,
+            [
+                '--headless',
+                '--print-to-pdf=' . $temPath,
+                '"'.$url.'"'
+            ]
+        )) {
+            return false;
+        }
         sleep(1);
+        $copyToFile = basename($temPath,'.pdf');
+        $i=1;
+        $result = false;
+        while($i<=$copies) {
+            $result = $ftp->copy($temPath, $copyToFile . $i . '.pdf');
+            $i++;
+        }
+
         if(file_exists($temPath)){
             unlink($temPath);
         }
