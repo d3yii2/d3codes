@@ -98,6 +98,7 @@ class PrintWindowsPrinter extends Component
         if ((!$conn_id) || (!$login_result)) {
             throw new \yii\base\Exception("FTP connection has failed!");
         }
+        $i = 1;
         while($i<=$copies) {
             echo 'f';
             echo '"' . $copyToFile . $i . '.pdf"';
