@@ -81,40 +81,13 @@ class PrintWindowsPrinter extends Component
      *
      * @todo papildus parami: host, mode (pasive/active), user, password, timeout sec, debug
      */
-    public function printToFtpFilesystem(FtpFilesystem $ftp,string $url, int $copies = 1): bool
+    public function printToFtpFilesystem(string $filepath, int $copies = 1): bool
     {
-        /**
-         * @todo jaiznes atseviskja funkcija
-         */
-        $temPath =escapeshellarg($this->getTempFile('4printer','pdf'));
         echo 'a';
-        sleep(1);
-        if (!$this->exec($this->chromeExe,
-            [
-                '--headless',
-                '--print-to-pdf=' . $temPath,
-                '"'.$url.'"'
-            ]
-        )) {
-            return false;
+        if(!file_exists($filepath)){
+            throw new \yii\base\Exception('Neeksite fails: ' . $filepath);
         }
-        echo 'b';
-        sleep(1);
-        echo 'c';
-
-        $i=1;
-        $result = false;
-        $temPath = trim($temPath,'"');
-        echo '"'.$temPath.'"';
-
-        /**
-         * @todo dazreiz neeksistee fails, ja tiek peec kartas genereet . vareetu loopu ar sleep un max iteration 10 un samazinaat ieprieksheejo sleet(1)
-         *
-         */
-        if(!file_exists($temPath)){
-            throw new \yii\base\Exception('Neeksite fails: ' . $temPath);
-        }
-        $copyToFile = basename($temPath,'.pdf');
+        $copyToFile = basename($filepath,'.pdf');
         $conn_id = ftp_connect('192.168.15.22');
         if(!$login_result = ftp_login($conn_id, 'anonymous', 'anonymous@domain.com')){
             echo print_r($login_result);
@@ -126,24 +99,19 @@ class PrintWindowsPrinter extends Component
             throw new \yii\base\Exception("FTP connection has failed!");
         }
         while($i<=$copies) {
-            echo 'e';
-            //$stream = fopen($temPath, 'r+');
-
             echo 'f';
             echo '"' . $copyToFile . $i . '.pdf"';
 
-            if(!@ftp_put($conn_id, $copyToFile . $i . '.pdf', $temPath, FTP_BINARY)){
+            if(!@ftp_put($conn_id, $copyToFile . $i . '.pdf', $filepath, FTP_BINARY)){
                 throw new \yii\base\Exception("can not ftp_put! " . VarDumper::dumpAsString(error_get_last()));
             }
             echo 'g';
-            //fclose($stream);
-
             $i++;
         }
 
-        if(file_exists($temPath)){
-            unlink($temPath);
-        }
+//        if(file_exists($filepath)){
+//            unlink($filepath);
+//        }
         return true;
 
     }
