@@ -4,7 +4,6 @@
 namespace d3yii2\d3codes\components;
 
 
-use creocoder\flysystem\FtpFilesystem;
 use PhpExec\Exception;
 use Yii;
 use yii\base\Component;
@@ -36,6 +35,11 @@ class PrintWindowsPrinter extends Component
      * @see http://www.columbia.edu/~em36/pdftoprinter.html
      */
     public $PDFtoPrinter;
+
+    /**
+     * @var string
+     */
+    public $printerIp;
 
     /**
      * @param string $url URL return label with barcode
@@ -72,13 +76,10 @@ class PrintWindowsPrinter extends Component
 
 
     /**
-     * @param string $url
+     * @param string $filepath
      * @param int $copies
      * @return bool
-     * @throws Exception
-     * @throws NotFoundHttpException
      * @throws \yii\base\Exception
-     *
      * @todo papildus parami: host, mode (pasive/active), user, password, timeout sec, debug
      */
     public function printToFtpFilesystem(string $filepath, int $copies = 1): bool
@@ -88,11 +89,13 @@ class PrintWindowsPrinter extends Component
             throw new \yii\base\Exception('Neeksite fails: ' . $filepath);
         }
         $copyToFile = basename($filepath,'.pdf');
-        $conn_id = ftp_connect('192.168.15.22');
-        if(!$login_result = ftp_login($conn_id, 'anonymous', 'anonymous@domain.com')){
-            echo print_r($login_result);
+        if(!$conn_id = ftp_connect($this->printerIp)){
+            throw new \yii\base\Exception("Can not connect to ftp! ");
         }
-        //if(!ftp_pasv($conn_id, true)) echo '"can not switch passive mode"';
+        if(!$login_result = ftp_login($conn_id, 'anonymous', 'anonymous@domain.com')){
+            echo VarDumper::dumpAsString($login_result);
+            throw new \yii\base\Exception("can not login ftp! " . VarDumper::dumpAsString($login_result));
+        }
         ftp_set_option($conn_id, FTP_TIMEOUT_SEC, 10);
         echo 'd';
         if ((!$conn_id) || (!$login_result)) {
@@ -110,9 +113,6 @@ class PrintWindowsPrinter extends Component
             $i++;
         }
 
-//        if(file_exists($filepath)){
-//            unlink($filepath);
-//        }
         return true;
 
     }
