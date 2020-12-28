@@ -9,5 +9,10 @@ use \d3yii2\d3codes\models\base\D3CodesCodeRecord as BaseD3CodesCodeRecord;
  */
 class D3CodesCodeRecord extends BaseD3CodesCodeRecord
 {
-
+    public function rules()
+    {
+        return array_merge(parent::rules(),[
+            [['code_id','full_code'], 'unique','targetAttribute' => ['code_id','full_code']]
+        ]);
+    }
 }

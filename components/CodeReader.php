@@ -32,18 +32,26 @@ class CodeReader  extends Component {
 
     public function findModel(string $code)
     {
-            if(!$model = D3CodesCodeRecord::find()
-                ->where([
-                    'model_id' => array_keys($this->modelIdList),
-                    'full_code' => $code
-                ])
-                ->one()
-            ){
+            if(!$model = $this->findCodeRecord($code)){
                 return false;
             }
             /** @var ActiveRecord $codeModelClass */
             $codeModelClass = $this->modelIdList[(int)$model->model_id];
             return $codeModelClass::findOne($model->model_record_id);
 
+    }
+
+    /**
+     * @param string $code
+     * @return array|D3CodesCodeRecord|ActiveRecord|null
+     */
+    public function findCodeRecord(string $code)
+    {
+        return D3CodesCodeRecord::find()
+            ->where([
+                'model_id' => array_keys($this->modelIdList),
+                'full_code' => $code
+            ])
+            ->one();
     }
 }
