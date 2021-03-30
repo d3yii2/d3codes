@@ -5,7 +5,6 @@ namespace d3yii2\d3codes\components;
 use d3system\dictionaries\SysModelsDictionary;
 use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3codes\models\D3CodesCodeRecord;
-use Yii;
 use yii\base\Component;
 use yii\db\ActiveRecord;
 
@@ -29,10 +28,15 @@ class CodeReader  extends Component {
         }
     }
 
-
+    /**
+     * find code model record
+     *
+     * @param string $code
+     * @return false|ActiveRecord|null
+     */
     public function findModel(string $code)
     {
-            if(!$model = $this->findCodeRecord($code)){
+            if(!$model = $this->findCodeRecord(trim($code))){
                 return false;
             }
             /** @var ActiveRecord $codeModelClass */
