@@ -96,15 +96,28 @@ CHROME_PATH=C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
 
 
 ## Usage
-### creating new barcode
+### creating new barcode for model
 ```php
 
-    $barCode = \Yii::$app->palletCodeRecorder->createNewRecord($palletModel->id);
+    $paletBarCode = \Yii::$app->palletCodeRecorder->createNewRecord($palletModelId);
+```
+
+### Find model by barcode
+```php
     $palletModel = \Yii::$app->palletCodeRecorder->codeReader($barcodeReadedByBarCodeScaner);       
+```
+
+
+### Assign to model created code to other model record
+```php
+
+    Yii::$app->packCodeRecorder->assignCodeToOtherRecord($outPackId, $packCode);
 
 ```
 
-### adding code to model
+### Adding code as attribute to model
+ - find code, if code attached
+ - create new code and attach it, if no code attached
 
 ```php
 class BtlinePp extends BaseBtlinePp

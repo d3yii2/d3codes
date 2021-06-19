@@ -8,6 +8,7 @@ use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3codes\dictionaries\D3CodesCodeDictionary;
 use d3yii2\d3codes\models\D3CodesCodeRecord;
 use yii\base\Component;
+use yii\db\Exception;
 
 
 class CodeRecorder  extends Component {
@@ -57,6 +58,31 @@ class CodeRecorder  extends Component {
         }
 
         return $this->createNewRecord($modelRecordId);
+    }
+
+    /**
+     * assign code to other model record
+     * @param int $newModelRecordId
+     * @param string $code
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws \yii\db\Exception
+     */
+    public function assignCodeToOtherRecord(int $newModelRecordId, string $code): void
+    {
+        if(!$codeRecord = D3CodesCodeRecord::findOne([
+                'full_code' => $code,
+                'code_id' => $this->codeId,
+                'model_id' => $this->modelId,
+//                'model_record_id' => $modelRecordId
+            ])
+        ){
+            throw new Exception('Can not find code record for code: ' . $code);
+        }
+        $codeRecord->model_record_id = $newModelRecordId;
+        if(!$codeRecord->save()){
+            throw new D3ActiveRecordException($codeRecord);
+        }
+
     }
 
     public function getBarCode(int $modelRecordId)
@@ -190,7 +216,7 @@ class CodeRecorder  extends Component {
     {
         foreach ($this->seriesList as $series){
 
-            if($number = $series->getCodeNumber($code)){
+            if($series->getCodeNumber($code)){
                 return true;
 
             }
