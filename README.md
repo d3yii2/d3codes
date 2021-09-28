@@ -82,19 +82,6 @@ PDFtoPrinter=H:\yii2\cewood\PDFtoPrinter.exe
 CHROME_PATH=C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
 ```
 
-```php
- 'components' => [
-        'bouncerPrinter' => [
-            'class' => '\d3yii2\d3codes\components\PrintWindowsPrinter',
-            'printerName' => getenv('BOUNCER_PRINTER'),
-            'chromeExe' => getenv('CHROME_PATH'),
-            'PDFtoPrinter' => getenv('PDFtoPrinter'),
-        ],
-    ]
-        
-```
-
-
 ## Usage
 ### creating new barcode for model
 ```php
