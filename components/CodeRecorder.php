@@ -7,6 +7,7 @@ use d3yii2\d3codes\models\D3CodesCodeQueue;
 use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3codes\dictionaries\D3CodesCodeDictionary;
 use d3yii2\d3codes\models\D3CodesCodeRecord;
+use Yii;
 use yii\base\Component;
 use yii\db\Exception;
 
@@ -48,7 +49,9 @@ class CodeRecorder  extends Component {
     /**
      * @param int $modelRecordId
      * @return bool|string
-     * @throws D3ActiveRecordException
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
     public function getCodeOrCreate(int $modelRecordId): string
     {
@@ -101,7 +104,9 @@ class CodeRecorder  extends Component {
      * @param int $modelRecordId
      * @param string $code
      * @return bool|string
-     * @throws D3ActiveRecordException
+     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws \yii\base\Exception
+     * @throws \yii\db\Exception
      */
     public function registerCode(int $modelRecordId, string $code)
     {
@@ -164,30 +169,49 @@ class CodeRecorder  extends Component {
      * @param string $code
      * @return bool|string
      * @throws D3ActiveRecordException
+     * @throws \yii\db\Exception
+     * @throws \yii\base\Exception
      */
     public function createNewRecord(int $modelRecordId, string $code = '')
     {
         foreach ($this->seriesList as $series){
-            if($code){
-                $number = $series->getCodeNumber($code);
-            }else {
-                $number = $this->createNextCode($series);
-            }
+            $loopCnt = 0;
 
-            if($number){
-                $code = $series->createCode($number);
-                $model = new D3CodesCodeRecord();
-                $model->code_id = $this->codeId;
-                $model->model_id = $this->modelId;
-                $model->series_id = $series->getSerriesId();
-                $model->model_record_id = $modelRecordId;
-                $model->sqn = $number;
-                $model->full_code = $code;
-                if(!$model->save()){
-                    throw new D3ActiveRecordException($model);
+            while (true) {
+                $loopCnt ++;
+                if ($loopCnt > 10 ) {
+                    throw new \yii\base\Exception('createNewRecord loopCnt exceeded');
+                }
+                if ($code) {
+                    $number = $series->getCodeNumber($code);
+                } else {
+                    $number = $this->createNextCode($series);
                 }
 
-                return $code;
+                if ($number) {
+                    $code = $series->createCode($number);
+                    $model = new D3CodesCodeRecord();
+                    $model->code_id = $this->codeId;
+                    $model->model_id = $this->modelId;
+                    $model->series_id = $series->getSerriesId();
+                    $model->model_record_id = $modelRecordId;
+                    $model->sqn = $number;
+                    $model->full_code = $code;
+                    if (!$transaction = Yii::$app->db->beginTransaction()) {
+                        throw new Exception('Can not initiate transaction');
+                    }
+                    try {
+                        if (!$model->save()) {
+                            throw new D3ActiveRecordException($model);
+                        }
+                        $transaction->commit();
+                        return $code;
+                    } catch (\Exception $e) {
+                        $transaction->rollBack();
+                        usleep(random_int(100, 400000));
+                        Yii::error('Try create code. ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                    }
+                }
             }
         }
         return false;
