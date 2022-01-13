@@ -47,16 +47,18 @@ class CodeRecorder  extends Component {
     }
 
     /**
-     * @param int $modelRecordId
+     * @param int|null $modelRecordId
      * @return bool|string
      * @throws \d3system\exceptions\D3ActiveRecordException
      * @throws \yii\base\Exception
      * @throws \yii\db\Exception
      */
-    public function getCodeOrCreate(int $modelRecordId): string
+    public function getCodeOrCreate(?int $modelRecordId): ?string
     {
-        if($code = $this->getBarCode($modelRecordId)
-        ){
+        if (!$modelRecordId) {
+            return null;
+        }
+        if ($code = $this->getBarCode($modelRecordId)) {
             return $code;
         }
 
