@@ -65,7 +65,7 @@ class Serries
      * @return bool|int
      */
     public function getNextSqn($lastSqn, int $step = 1){
-        if($lastSqn === false){
+        if($lastSqn === false || $lastSqn === null){
             return $this->from;
         }
         if((int)$lastSqn < $this->to){
