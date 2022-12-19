@@ -40,6 +40,16 @@ class CodeReader extends Model
         if(!parent::load($data, $formName)){
             return false;
         }
+
+        $this->code = trim($this->code);
+
+        /** Check no ASCII chars  */
+        $codeSanitised = preg_replace('/[[:^print:]]/', '', $this->code);
+        if ($codeSanitised !== $this->code) {
+            $this->addError('code','The barcode was read incorrectly');
+            return false;
+        }
+
         /** @var  \d3yii2\d3codes\components\CodeReader $codeReader */
         $codeReader = Yii::$app->get($this->componentCodeReaderName);
         if($this->code && !$this->model = $codeReader->findModel($this->code)) {
@@ -48,5 +58,4 @@ class CodeReader extends Model
         }
         return true;
     }
-
 }
