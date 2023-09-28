@@ -10,6 +10,8 @@ use d3yii2\d3codes\models\D3CodesCodeRecord;
 use Yii;
 use yii\base\Component;
 use yii\db\Exception;
+use yii\helpers\VarDumper;
+use yii2d3\d3persons\components\D3User;
 
 
 class CodeRecorder  extends Component {
@@ -182,10 +184,19 @@ class CodeRecorder  extends Component {
             while (true) {
                 $loopCnt ++;
                 if ($loopCnt > 10 ) {
-                    throw new \yii\base\Exception('createNewRecord loopCnt exceeded');
+                    throw new \yii\base\Exception(
+                        'createNewRecord loopCnt exceeded' . PHP_EOL .
+                        '$code = ' . $code . PHP_EOL .
+                        '$this->seriesList = ' . VarDumper::dumpAsString( $this->seriesList) . PHP_EOL .
+                        '$series = ' . VarDumper::dumpAsString( $series) . PHP_EOL
+                    );
                 }
                 if ($code) {
-                    $number = $series->getCodeNumber($code);
+                    if (!$number = $series->getCodeNumber($code)) {
+                        Yii::error('if (!$number = $series->getCodeNumber($code)) {' . PHP_EOL .
+                            '$code = ' . $code . PHP_EOL .
+                            '$series = ' . VarDumper::dumpAsString( $series) . PHP_EOL);
+                    }
                 } else {
                     $number = $this->createNextCode($series);
                 }
