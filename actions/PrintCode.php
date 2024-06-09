@@ -4,6 +4,7 @@
 namespace d3yii2\d3codes\actions;
 
 
+use cornernote\returnurl\ReturnUrl;
 use d3system\exceptions\D3ActiveRecordException;
 use d3yii2\d3codes\components\CodeRecorder;
 use Yii;
@@ -13,7 +14,7 @@ use yii\base\InvalidConfigException;
 class PrintCode extends Action
 {
 
-    /** @var string */
+    /** @var string|\Closure layout for html or closure   */
     public $layout;
 
     /**
@@ -35,6 +36,10 @@ class PrintCode extends Action
      */
     public function run(int $id)
     {
+        if ($this->layout instanceof \Closure) {
+            call_user_func($this->layout, $id);
+            return $this->controller->redirect(['view', 'id' => $id]);
+        }
         if ($this->layout) {
             $this->controller->layout = $this->layout;
         } else {
