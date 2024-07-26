@@ -1,4 +1,6 @@
+
 [![Yii2](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
+
 ## Features
 
 Created as Yii2 moule. Actualy generate barccodes, bot can easy implement Qrcodes
@@ -246,6 +248,23 @@ form
         } catch (Exception $e) {
             FlashHelper::processException($e);
         }
+
+
+```
+
+### SQL Join
+
+```php
+$sql = 'SELECT
+  cwat_pack.cwat_pack,
+  d3codes_code_record.full_code
+FROM
+  cwat_pack
+  LEFT OUTER JOIN `d3codes_code_record`
+    ON cwat_pack.id = d3codes_code_record.`model_record_id`
+    AND d3codes_code_record.`model_id` = '.\d3system\dictionaries\SysModelsDictionary::getIdByClassName(CwatPack::class).'
+    AND d3codes_code_record.`code_id` = '.Yii::$app->packAtlCodeRecorder->codeId
+';
 
 
 ```
