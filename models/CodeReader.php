@@ -13,7 +13,7 @@ class CodeReader extends Model
 {
 
     /** @var string */
-    public $code;
+    public ?string $code = null;
 
     /** @var ActiveRecord  */
     public $model;
@@ -21,7 +21,7 @@ class CodeReader extends Model
     /** @var string */
     public $componentCodeReaderName;
 
-    public function rules()
+    public function rules(): array
     {
         return [
             ['code','required'],
@@ -35,7 +35,7 @@ class CodeReader extends Model
      * @return bool
      * @throws InvalidConfigException
      */
-    public function load($data, $formName = null)
+    public function load($data, $formName = null): bool
     {
         if(!parent::load($data, $formName)){
             return false;
@@ -52,7 +52,7 @@ class CodeReader extends Model
 
         /** @var  \d3yii2\d3codes\components\CodeReader $codeReader */
         $codeReader = Yii::$app->get($this->componentCodeReaderName);
-        if($this->code && !$this->model = $codeReader->findModel($this->code)) {
+        if(strlen($this->code) && !$this->model = $codeReader->findModel($this->code)) {
             $this->addError('code','Code no found');
             return false;
         }
