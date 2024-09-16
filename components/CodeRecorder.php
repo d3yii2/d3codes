@@ -11,8 +11,6 @@ use Yii;
 use yii\base\Component;
 use yii\db\Exception;
 use yii\helpers\VarDumper;
-use yii2d3\d3persons\components\D3User;
-
 
 class CodeRecorder  extends Component {
 
@@ -51,9 +49,9 @@ class CodeRecorder  extends Component {
     /**
      * @param int|null $modelRecordId
      * @return bool|string
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function getCodeOrCreate(?int $modelRecordId): ?string
     {
@@ -71,8 +69,8 @@ class CodeRecorder  extends Component {
      * assign code to other model record
      * @param int $newModelRecordId
      * @param string $code
-     * @throws \d3system\exceptions\D3ActiveRecordException
-     * @throws \yii\db\Exception
+     * @throws D3ActiveRecordException
+     * @throws Exception
      */
     public function assignCodeToOtherRecord(int $newModelRecordId, string $code): void
     {
@@ -108,9 +106,9 @@ class CodeRecorder  extends Component {
      * @param int $modelRecordId
      * @param string $code
      * @return bool|string
-     * @throws \d3system\exceptions\D3ActiveRecordException
+     * @throws D3ActiveRecordException
      * @throws \yii\base\Exception
-     * @throws \yii\db\Exception
+     * @throws Exception
      */
     public function registerCode(int $modelRecordId, string $code)
     {
@@ -118,7 +116,9 @@ class CodeRecorder  extends Component {
     }
 
 
-
+    /**
+     * @throws Exception
+     */
     public function addToQueue(int $modelRecordId): void
     {
         $id = D3CodesCodeRecord::find()
@@ -173,8 +173,8 @@ class CodeRecorder  extends Component {
      * @param string $code
      * @return bool|string
      * @throws D3ActiveRecordException
-     * @throws \yii\db\Exception
-     * @throws \yii\base\Exception
+     * @throws Exception
+     * @throws \yii\base\Exception|RandomException
      */
     public function createNewRecord(int $modelRecordId, string $code = '')
     {
@@ -196,6 +196,7 @@ class CodeRecorder  extends Component {
                         Yii::error('if (!$number = $series->getCodeNumber($code)) {' . PHP_EOL .
                             '$code = ' . $code . PHP_EOL .
                             '$series = ' . VarDumper::dumpAsString( $series) . PHP_EOL);
+                        break;
                     }
                 } else {
                     $number = $this->createNextCode($series);
