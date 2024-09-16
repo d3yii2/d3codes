@@ -174,7 +174,7 @@ class CodeRecorder  extends Component {
      * @return bool|string
      * @throws D3ActiveRecordException
      * @throws Exception
-     * @throws \yii\base\Exception|RandomException
+     * @throws \yii\base\Exception
      */
     public function createNewRecord(int $modelRecordId, string $code = '')
     {
