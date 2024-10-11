@@ -262,9 +262,13 @@ FROM
   cwat_pack
   LEFT OUTER JOIN `d3codes_code_record`
     ON cwat_pack.id = d3codes_code_record.`model_record_id`
-    AND d3codes_code_record.`model_id` = '.\d3system\dictionaries\SysModelsDictionary::getIdByClassName(CwatPack::class).'
-    AND d3codes_code_record.`code_id` = '.Yii::$app->packAtlCodeRecorder->codeId
+      AND cwat_pack.id = d3codes_code_record.model_record_id
+      AND d3codes_code_record.`code_id` = :packCodeId
 ';
+$params = [
+   ':modelId' => SysModelsDictionary::getIdByClassName(CwatPack::class),
+   ':packCodeId' => D3CodesCodeDictionary::getIdByName(Yii::$app->packAtlCodeRecorder->codeName),
+];
 
 
 ```
