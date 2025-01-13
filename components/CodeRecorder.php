@@ -10,7 +10,7 @@ use d3yii2\d3codes\models\D3CodesCodeRecord;
 use Yii;
 use yii\base\Component;
 use yii\db\Exception;
-use yii\helpers\VarDumper;
+use yii\db\IntegrityException;
 
 class CodeRecorder  extends Component {
 
@@ -178,54 +178,51 @@ class CodeRecorder  extends Component {
      */
     public function createNewRecord(int $modelRecordId, string $code = '')
     {
+        $step = 1;
         foreach ($this->seriesList as $series){
-            $loopCnt = 0;
+            if ($code) {
+                if (!$number = $series->getCodeNumber($code)) {
+                    continue;
+                }
+            } else {
+                if (!$number = $this->createNextCode($series, $step)) {
+                    continue;
+                }
+            }
 
-            while (true) {
-                $loopCnt ++;
-                if ($loopCnt > 10 ) {
-                    throw new \yii\base\Exception(
-                        'createNewRecord loopCnt exceeded' . PHP_EOL .
-                        '$code = ' . $code . PHP_EOL .
-                        '$this->seriesList = ' . VarDumper::dumpAsString( $this->seriesList) . PHP_EOL .
-                        '$series = ' . VarDumper::dumpAsString( $series) . PHP_EOL
-                    );
+            $model = new D3CodesCodeRecord();
+            $model->code_id = $this->codeId;
+            $model->model_id = $this->modelId;
+            $model->series_id = $series->getSerriesId();
+            $model->model_record_id = $modelRecordId;
+            $i = 1;
+            while ($i < 10) {
+                $model->full_code = $series->createCode($number);
+                $model->sqn = $number;
+                if (!$transaction = Yii::$app->db->beginTransaction()) {
+                    throw new Exception('Can not initiate transaction');
                 }
-                if ($code) {
-                    if (!$number = $series->getCodeNumber($code)) {
-                        Yii::error('if (!$number = $series->getCodeNumber($code)) {' . PHP_EOL .
-                            '$code = ' . $code . PHP_EOL .
-                            '$series = ' . VarDumper::dumpAsString( $series) . PHP_EOL);
-                        break;
+                try {
+                    if (!$model->save()) {
+                        throw new D3ActiveRecordException($model);
                     }
-                } else {
-                    $number = $this->createNextCode($series);
+                    $transaction->commit();
+                    return $code;
+                } catch (IntegrityException $e) {
+                    $transaction->rollBack();
+                    usleep(random_int(100, 400000));
+                    if (strpos($e->getMessage(), 'Integrity constraint violation: 1062 Duplicate entry') !== false) {
+                        $step ++;
+                        $i ++;
+                        continue;
+                    }
+                    Yii::error('Try create code. ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                } catch (\Exception $e) {
+                    $transaction->rollBack();
+                    usleep(random_int(100, 400000));
+                    Yii::error('Try create code. ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
                 }
-
-                if ($number) {
-                    $code = $series->createCode($number);
-                    $model = new D3CodesCodeRecord();
-                    $model->code_id = $this->codeId;
-                    $model->model_id = $this->modelId;
-                    $model->series_id = $series->getSerriesId();
-                    $model->model_record_id = $modelRecordId;
-                    $model->sqn = $number;
-                    $model->full_code = $code;
-                    if (!$transaction = Yii::$app->db->beginTransaction()) {
-                        throw new Exception('Can not initiate transaction');
-                    }
-                    try {
-                        if (!$model->save()) {
-                            throw new D3ActiveRecordException($model);
-                        }
-                        $transaction->commit();
-                        return $code;
-                    } catch (\Exception $e) {
-                        $transaction->rollBack();
-                        usleep(random_int(100, 400000));
-                        Yii::error('Try create code. ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
-                    }
-                }
+                $i ++;
             }
         }
         return false;
