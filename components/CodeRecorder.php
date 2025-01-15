@@ -207,7 +207,7 @@ class CodeRecorder  extends Component {
                         throw new D3ActiveRecordException($model);
                     }
                     $transaction->commit();
-                    return $code;
+                    return $model->full_code;
                 } catch (IntegrityException $e) {
                     $transaction->rollBack();
                     usleep(random_int(100, 400000));
