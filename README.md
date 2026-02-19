@@ -254,6 +254,7 @@ form
 
 ### SQL Join
 
+SQL for getting code from model record
 ```php
 $sql = 'SELECT
   cwat_pack.cwat_pack,
@@ -261,7 +262,7 @@ $sql = 'SELECT
 FROM
   cwat_pack
   LEFT OUTER JOIN `d3codes_code_record`
-    ON cwat_pack.id = d3codes_code_record.`model_record_id`
+    ON d3codes_code_record.model_id = :modelId
       AND cwat_pack.id = d3codes_code_record.model_record_id
       AND d3codes_code_record.`code_id` = :packCodeId
 ';
@@ -270,5 +271,25 @@ $params = [
    ':packCodeId' => D3CodesCodeDictionary::getIdByName(Yii::$app->packAtlCodeRecorder->codeName),
 ];
 
+````
 
+Yii2 Query for getting code column 
+```php
+return $this
+    ->queryForIndex()
+    ->addSelect([
+        'packCode' => 'd3codes_code_record.full_code',
+    ])
+    ->leftJoin(
+        'd3codes_code_record',
+        'd3codes_code_record.model_id = :modelId
+            AND cw_store_pack.id = d3codes_code_record.`model_record_id`
+            AND d3codes_code_record.`code_id` = :packCodeId',
+        [
+            ':modelId' => SysModelsDictionary::getIdByClassName(CwStorePack::class),
+            ':packCodeId' => D3CodesCodeDictionary::getIdByName(Yii::$app->packCodeRecorder->codeName),
+        ]
+    )
+    ->andFilterWhere(['LIKE', 'd3codes_code_record.full_code', $this->packCode])
+    ;
 ```
