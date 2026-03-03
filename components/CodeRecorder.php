@@ -216,11 +216,17 @@ class CodeRecorder  extends Component {
                         $i ++;
                         continue;
                     }
-                    Yii::error('Try create code. ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                    Yii::error([
+                        'msg' => 'Try create code: ' . $e->getMessage(),
+                        'exception' => $e
+                    ]);
                 } catch (\Exception $e) {
                     $transaction->rollBack();
                     usleep(random_int(100, 400000));
-                    Yii::error('Try create code. ' . $e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                       Yii::error([
+                        'msg' => 'Try create code: ' . $e->getMessage(),
+                        'exception' => $e
+                    ]);
                 }
                 $i ++;
             }
