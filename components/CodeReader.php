@@ -55,9 +55,11 @@ class CodeReader  extends Component {
      */
     public function findCodeRecord(string $code)
     {
-        $code = trim($code);
+        if (!$code = trim($code)) {
+            throw new UserException(Yii::t('d3codes', 'Code is empty'));
+        }
         if(!preg_match('/^[a-zA-Z0-9]+$/', $code)){
-            throw new UserException(Yii::t('d3codes', 'Code have invalid symbols'));
+            throw new UserException(Yii::t('d3codes', 'Code have invalid symbols "{code}"', ['code' => $code]));
         }
         return D3CodesCodeRecord::find()
             ->where([
