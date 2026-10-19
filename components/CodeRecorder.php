@@ -21,10 +21,10 @@ class CodeRecorder  extends Component {
     /** @var array */
     public $series;
 
-    /** @var string */
+    /** @var string|null */
     public $modelClass;
-    
-    /** @var int */
+
+    /** @var int|null */
     public $modelId;
 
     /** @var Serries[] */
@@ -39,7 +39,9 @@ class CodeRecorder  extends Component {
     public function init(): void
     {
         $this->codeId = D3CodesCodeDictionary::getIdByName($this->codeName);
-        $this->modelId = SysModelsDictionary::getIdByClassName($this->modelClass);
+        if ($this->modelClass !== null) {
+            $this->modelId = SysModelsDictionary::getIdByClassName($this->modelClass);
+        }
         foreach ($this->series as $name => $s){
             $this->seriesList[$name] = new Serries($name,$s['prefix'],$s['length'],$s['from'],$s['to']);
         }
@@ -53,16 +55,16 @@ class CodeRecorder  extends Component {
      * @throws \yii\base\Exception
      * @throws Exception
      */
-    public function getCodeOrCreate(?int $modelRecordId): ?string
+    public function getCodeOrCreate(?int $modelRecordId, ?string $modelClass = null): ?string
     {
         if (!$modelRecordId) {
             return null;
         }
-        if ($code = $this->getBarCode($modelRecordId)) {
+        if ($code = $this->getBarCode($modelRecordId, $modelClass)) {
             return $code;
         }
 
-        return $this->createNewRecord($modelRecordId);
+        return $this->createNewRecord($modelRecordId, '', $modelClass);
     }
 
     /**
@@ -72,12 +74,13 @@ class CodeRecorder  extends Component {
      * @throws D3ActiveRecordException
      * @throws Exception
      */
-    public function assignCodeToOtherRecord(int $newModelRecordId, string $code): void
+    public function assignCodeToOtherRecord(int $newModelRecordId, string $code, ?string $modelClass = null): void
     {
+        $modelId = $this->resolveModelId($modelClass);
         if(!$codeRecord = D3CodesCodeRecord::findOne([
                 'full_code' => $code,
                 'code_id' => $this->codeId,
-                'model_id' => $this->modelId,
+                'model_id' => $modelId,
 //                'model_record_id' => $modelRecordId
             ])
         ){
@@ -90,13 +93,14 @@ class CodeRecorder  extends Component {
 
     }
 
-    public function getBarCode(int $modelRecordId)
+    public function getBarCode(int $modelRecordId, ?string $modelClass = null)
     {
+        $modelId = $this->resolveModelId($modelClass);
         return D3CodesCodeRecord::find()
             ->select('full_code')
             ->andWhere([
                 'code_id' => $this->codeId,
-                'model_id' => $this->modelId,
+                'model_id' => $modelId,
                 'model_record_id' => $modelRecordId
             ])
             ->scalar();
@@ -110,22 +114,23 @@ class CodeRecorder  extends Component {
      * @throws \yii\base\Exception
      * @throws Exception
      */
-    public function registerCode(int $modelRecordId, string $code)
+    public function registerCode(int $modelRecordId, string $code, ?string $modelClass = null)
     {
-        return $this->createNewRecord($modelRecordId,$code);
+        return $this->createNewRecord($modelRecordId, $code, $modelClass);
     }
 
 
     /**
      * @throws Exception
      */
-    public function addToQueue(int $modelRecordId): void
+    public function addToQueue(int $modelRecordId, ?string $modelClass = null): void
     {
+        $modelId = $this->resolveModelId($modelClass);
         $id = D3CodesCodeRecord::find()
             ->select('id')
             ->andWhere([
                 'code_id' => $this->codeId,
-                'model_id' => $this->modelId,
+                'model_id' => $modelId,
                 'model_record_id' => $modelRecordId
             ])
             ->scalar();
@@ -134,8 +139,9 @@ class CodeRecorder  extends Component {
         $queue->save();
     }
 
-    public function removeFromQueue(int $modelRecordId): void
+    public function removeFromQueue(int $modelRecordId, ?string $modelClass = null): void
     {
+        $modelId = $this->resolveModelId($modelClass);
         $codeQueueIdList = D3CodesCodeQueue::find()
             ->select('d3codes_code_queue.id')
             ->innerJoin(
@@ -144,7 +150,7 @@ class CodeRecorder  extends Component {
             )
             ->andWhere([
                 'd3codes_code_record.code_id' => $this->codeId,
-                'd3codes_code_record.model_id' => $this->modelId,
+                'd3codes_code_record.model_id' => $modelId,
                 'd3codes_code_record.model_record_id' => $modelRecordId
             ])
             ->column();
@@ -152,8 +158,9 @@ class CodeRecorder  extends Component {
 
     }
 
-    public function countQueue(int $modelRecordId): int
+    public function countQueue(int $modelRecordId, ?string $modelClass = null): int
     {
+        $modelId = $this->resolveModelId($modelClass);
         return (int)D3CodesCodeRecord::find()
             ->select(['cnt'=>'IFNULL(COUNT(*),0)'])
             ->innerJoin(
@@ -162,7 +169,7 @@ class CodeRecorder  extends Component {
             )
             ->andWhere([
                 'd3codes_code_record.code_id' => $this->codeId,
-                'd3codes_code_record.model_id' => $this->modelId,
+                'd3codes_code_record.model_id' => $modelId,
                 'd3codes_code_record.model_record_id' => $modelRecordId
             ])
             ->scalar();
@@ -176,23 +183,24 @@ class CodeRecorder  extends Component {
      * @throws Exception
      * @throws \yii\base\Exception
      */
-    public function createNewRecord(int $modelRecordId, string $code = '')
+    public function createNewRecord(int $modelRecordId, string $code = '', ?string $modelClass = null)
     {
         $step = 1;
+        $modelId = $this->resolveModelId($modelClass);
         foreach ($this->seriesList as $series){
             if ($code) {
                 if (!$number = $series->getCodeNumber($code)) {
                     continue;
                 }
             } else {
-                if (!$number = $this->createNextCode($series, $step)) {
+                if (!$number = $this->createNextCode($series, $step, $modelClass)) {
                     continue;
                 }
             }
 
             $model = new D3CodesCodeRecord();
             $model->code_id = $this->codeId;
-            $model->model_id = $this->modelId;
+            $model->model_id = $modelId;
             $model->series_id = $series->getSerriesId();
             $model->model_record_id = $modelRecordId;
             $i = 1;
@@ -271,19 +279,31 @@ class CodeRecorder  extends Component {
      * @return bool|int
      * @throws D3ActiveRecordException
      */
-    public function createNextCode(Serries $series, int $step = 1)
+    public function createNextCode(Serries $series, int $step = 1, ?string $modelClass = null)
     {
         $seriesId = $series->getSerriesId();
+        $modelId = $this->resolveModelId($modelClass);
         $maxSqn = D3CodesCodeRecord::find()
             ->select('MAX(sqn)')
             ->where([
                 'code_id' => $this->codeId,
-                'model_id' => $this->modelId,
+                'model_id' => $modelId,
                 'series_id' => $seriesId
             ])
             ->scalar();
         return $series->getNextSqn($maxSqn, $step);
     }
 
+    /**
+     * @param string|null $modelClass
+     * @return int|null
+     */
+    private function resolveModelId(?string $modelClass = null): ?int
+    {
+        if ($modelClass !== null) {
+            return SysModelsDictionary::getIdByClassName($modelClass);
+        }
+        return $this->modelId;
+    }
 
 }
